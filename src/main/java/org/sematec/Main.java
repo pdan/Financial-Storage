@@ -1,39 +1,79 @@
 package org.sematec;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Calendar;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter CSV file location: ");
-        String fileLocation = scanner.nextLine();
+        String accountCSVFile = "./mock_data/account.csv";
+        String customerCSVFile = "./mock_data/customer.csv";
 
-        // Wrap the file reading in a try-with-resources to automatically close the Reader
-        try (Reader reader = Files.newBufferedReader(Paths.get(fileLocation))) {
-            List<Map<String, String>> dataList = readCsvFile(reader);
+        Map<String, Account> accounts = new HashMap<>();
+        try (Reader reader = new FileReader(accountCSVFile);
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader())) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/M/yyyy hh:mm:ss");
 
-            // Print the data
-            assert dataList != null;
-            for (Map<String, String> data : dataList) {
-                System.out.println(data);
+            for (CSVRecord csvRecord : csvParser.getRecords()) {
+                Account account = new Account(
+                        csvRecord.get("ACCOUNT_NUMBER"),
+                        Integer.parseInt(csvRecord.get("ACCOUNT_CUSTOMER_ID")),
+                        Double.parseDouble(csvRecord.get("ACCOUNT_LIMIT")),
+                        dateFormat.parse(csvRecord.get("ACCOUNT_OPEN_DATE")),
+                        Double.parseDouble(csvRecord.get("ACCOUNT_BALANCE")),
+                        Account.accountType.valueOf(csvRecord.get("ACCOUNT_TYPE"))
+                );
+                accounts.put(csvRecord.get("ACCOUNT_NUMBER"), account);
             }
+            
         } catch (IOException e) {
-            // Handle the IOException appropriately
             e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
-    }
 
-    // Adjust the method to accept a Reader instead of a file location
-    private static List<Map<String, String>> readCsvFile(Reader reader) {
-        // Implement your CSV parsing logic here
-        // Example: Use a library like OpenCSV or write custom logic to parse CSV
-        // Return the list of maps containing the CSV data
-        return null;
+        Map<String, Customer> customers = new HashMap<>();
+        try (Reader reader = new FileReader(customerCSVFile);
+             CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader())) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-M-dd");
+
+            for (CSVRecord csvRecord : csvParser.getRecords()) {
+                Customer customer = new Customer(
+                        Integer.parseInt(csvRecord.get("CUSTOMER_ID")),
+                        csvRecord.get("CUSTOMER_NAME"),
+                        csvRecord.get("CUSTOMER_SURNAME"),
+                        csvRecord.get("CUSTOMER_ADDRESS"),
+                        csvRecord.get("CUSTOMER_ZIP_CODE"),
+                        csvRecord.get("CUSTOMER_NATIONAL_ID"),
+                        dateFormat.parse(csvRecord.get("CUSTOMER_BIRTH_DATE"))
+                );
+                customers.put(csvRecord.get("CUSTOMER_ID"), customer);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        System.out.println(accounts.size() +  " " +customers.size());
+
     }
 }
