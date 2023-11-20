@@ -17,7 +17,8 @@ public class Main {
                 preparedStatement.executeUpdate();
                 if (connection != null) {
                     Statement smt = connection.createStatement();
-                    insertData(connection, 14, "Cup Do");
+//                    insertData(connection, 16, "Cup Do 16");
+                    deleteData(connection, "Cup Do");
                     ResultSet result = smt.executeQuery("SELECT * FROM example");
 
                     do {
@@ -63,6 +64,14 @@ public class Main {
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
             preparedStatement.setInt(1, id);
             preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    private static void deleteData(Connection connection, String name) throws  SQLException {
+        String deleteSQL = "DELETE FROM example WHERE name=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL)) {
+            preparedStatement.setString(1, name);
             preparedStatement.executeUpdate();
         }
     }
