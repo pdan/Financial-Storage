@@ -7,57 +7,45 @@ public class Main {
     static final String JDBC_DRIVER = "org.sqlite.JDBC";
 
     public static void main(String[] args) {
-        String url = "jdbc:sqlite:src/main/database.db";
+        String url = "jdbc:postgresql://localhost:5432/Sematec";
 
         try {
             Class.forName(JDBC_DRIVER);
 
-            try (Connection connection = DriverManager.getConnection(url);
-                 PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS example (id INTEGER PRIMARY KEY, name TEXT)")) {
-                preparedStatement.executeUpdate();
-                if (connection != null) {
-                    Statement smt = connection.createStatement();
-//                    insertData(connection, 16, "Cup Do 16");
-                    deleteData(connection, "Cup Do");
-                    ResultSet result = smt.executeQuery("SELECT * FROM example");
+            try (Connection connection = DriverManager.getConnection(url, "postgres", "postgres")) {
+//                Statement createDbStatement = connection.createStatement();
+//                createDbStatement.executeUpdate(createDatabaseQuery);
 
-                    do {
-                        String name = result.getString(2);
+                if (connection != null) {
+                    Statement statement = connection.createStatement();
+                    statement.executeUpdate("CREATE TABLE IF NOT EXISTS example (id SERIAL PRIMARY KEY, name VARCHAR(255))");
+
+                    // Insert data
+                    int id = (int) (Math.random() * 1000);
+                    insertData(connection, id, "Cup Do " + id);
+
+                    // Delete data
+                    deleteData(connection, "Cup Do");
+
+                    // Query data
+                    ResultSet result = statement.executeQuery("SELECT * FROM example");
+
+                    while (result.next()) {
+                        String name = result.getString("name");
                         System.out.println("Result:");
                         System.out.println(name);
-                    } while (result.next());
+                    }
                 }
             } catch (SQLException e) {
-                System.out.println(e);
+                e.printStackTrace();
             }
 
-
         } catch (ClassNotFoundException e) {
-            System.out.println(e);
-        } finally {
-
+            e.printStackTrace();
         }
-//        String createTableSQL = "CREATE TABLE IF NOT EXISTS employees ("
-//                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-//                + "name TEXT NOT NULL,"
-//                + "age INTEGER);";
-//
-//        String url = "jdbc:sqlite:src/main/database.db";
-//        try (Connection connection = DriverManager.getConnection(url);
-//             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS example (id INTEGER PRIMARY KEY, name TEXT)")) {
-//
-//            // Create the table if it doesn't exist
-//            preparedStatement.executeUpdate();
-//
-//            // Insert data into the table
-////            insertData(connection, 1, "John Doe");
-//            insertData(connection, 4, "Main Doe2");
-//
-//        } catch (SQLException e) {
-////            e.printStackTrace();
-//        }
-
     }
+
+
 
     private static void insertData(Connection connection, int id, String name) throws SQLException {
         String insertSQL = "INSERT INTO example (id, name) VALUES (?, ?)";
