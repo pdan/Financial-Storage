@@ -1,39 +1,73 @@
 package org.sematec;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.Buffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
+import java.sql.*;
+import java.util.function.Predicate;
 
 public class Main {
+    static final String JDBC_DRIVER = "org.sqlite.JDBC";
+
     public static void main(String[] args) {
-        FileWriter fw = null;
-        boolean bool = false;
-        try  {
-            File f = new File("/Users/daneshvar/Downloads/file23.txt");
-//            bool = f.createNewFile();
+        String url = "jdbc:sqlite:src/main/database.db";
 
-            fw = new FileWriter(f.getPath(), true);
-            BufferedWriter bw = new BufferedWriter(fw);
-            bw.append("OkOkKoko");
-            bw.newLine();
-            bw.write(System.lineSeparator());
-            bw.flush();
-            System.out.println("File created: "+ bool);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if(fw != null) {
-                try {
-                    fw.close();
-                } catch (IOException e) {
+        try {
+            Class.forName(JDBC_DRIVER);
 
+            try (Connection connection = DriverManager.getConnection(url);
+                 PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS example (id INTEGER PRIMARY KEY, name TEXT)")) {
+                preparedStatement.executeUpdate();
+                if (connection != null) {
+                    Statement smt = connection.createStatement();
+                    insertData(connection, 14, "Cup Do");
+                    ResultSet result = smt.executeQuery("SELECT * FROM example");
+
+                    do {
+                        String name = result.getString(2);
+                        System.out.println("Result:");
+                        System.out.println(name);
+                    } while (result.next());
                 }
+            } catch (SQLException e) {
+                System.out.println(e);
             }
+
+
+        } catch (ClassNotFoundException e) {
+            System.out.println(e);
+        } finally {
+
         }
+//        String createTableSQL = "CREATE TABLE IF NOT EXISTS employees ("
+//                + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+//                + "name TEXT NOT NULL,"
+//                + "age INTEGER);";
+//
+//        String url = "jdbc:sqlite:src/main/database.db";
+//        try (Connection connection = DriverManager.getConnection(url);
+//             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS example (id INTEGER PRIMARY KEY, name TEXT)")) {
+//
+//            // Create the table if it doesn't exist
+//            preparedStatement.executeUpdate();
+//
+//            // Insert data into the table
+////            insertData(connection, 1, "John Doe");
+//            insertData(connection, 4, "Main Doe2");
+//
+//        } catch (SQLException e) {
+////            e.printStackTrace();
+//        }
+
+    }
+
+    private static void insertData(Connection connection, int id, String name) throws SQLException {
+        String insertSQL = "INSERT INTO example (id, name) VALUES (?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+            preparedStatement.setInt(1, id);
+            preparedStatement.setString(2, name);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public static Predicate<Customer> filterLoyaltyRate() {
+        return c -> c.getLoyaltyRate() > 5;
     }
 }
