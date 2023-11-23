@@ -1,13 +1,21 @@
 package org.sematec;
 
 import java.sql.*;
+import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
 public class Main {
     static final String JDBC_DRIVER = "org.sqlite.JDBC";
 
     public static void main(String[] args) {
-        String url = "jdbc:postgresql://localhost:5432/Sematec";
+
+        ResourceBundle resourceBundle = ResourceBundle.getBundle("db");
+        String dbHost = resourceBundle.getString("db.host");
+        String dbPort = resourceBundle.getString("db.port");
+        String dbName = resourceBundle.getString("db.name");
+
+
+        String url = "jdbc:postgresql://" + dbHost + ":" + dbPort + "/" + dbName;
 
         try {
             Class.forName(JDBC_DRIVER);
@@ -18,6 +26,9 @@ public class Main {
 
                 if (connection != null) {
                     Statement statement = connection.createStatement();
+                    PreparedStatement s = connection.prepareStatement("SELECT * FROM  ?");
+                    s.setString(1, "example");
+                    s.executeQuery();
                     statement.executeUpdate("CREATE TABLE IF NOT EXISTS example (id SERIAL PRIMARY KEY, name VARCHAR(255))");
 
                     // Insert data
@@ -46,7 +57,6 @@ public class Main {
     }
 
 
-
     private static void insertData(Connection connection, int id, String name) throws SQLException {
         String insertSQL = "INSERT INTO example (id, name) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
@@ -56,7 +66,7 @@ public class Main {
         }
     }
 
-    private static void deleteData(Connection connection, String name) throws  SQLException {
+    private static void deleteData(Connection connection, String name) throws SQLException {
         String deleteSQL = "DELETE FROM example WHERE name=?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(deleteSQL)) {
             preparedStatement.setString(1, name);
