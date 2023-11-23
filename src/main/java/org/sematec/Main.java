@@ -18,23 +18,25 @@ public class Main {
     public static void main(String[] args) {
 
         ObjectMapper objectMapper = new ObjectMapper();
-        Staff staff = new Staff();
-        staff.setName("modernISC");
-        staff.setAge(38);
-        staff.setPosition(new String[]{"Founder", "CTO", "Writer"});
-        Map<String, BigDecimal> salary = new HashMap() {{
-            put("2010"
-                    , new BigDecimal(10000));
-            put("2012"
-                    , new BigDecimal(12000));
-            put("2018"
-                    , new BigDecimal(14000));
-        }};
-        staff.setSalary(salary);
-        staff.setSkills(Arrays.asList("java", "python", "node", "kotlin"));
+//        Staff staff = new Staff();
+//        staff.setName("modernISC");
+//        staff.setAge(38);
+//        staff.setPosition(new String[]{"Founder", "CTO", "Writer"});
+//        Map<String, BigDecimal> salary = new HashMap() {{
+//            put("2010"
+//                    , new BigDecimal(10000));
+//            put("2012"
+//                    , new BigDecimal(12000));
+//            put("2018"
+//                    , new BigDecimal(14000));
+//        }};
+//        staff.setSalary(salary);
+//        staff.setSkills(Arrays.asList("java", "python", "node", "kotlin"));
 
         try {
-            objectMapper.writeValue(new File("staff.json"),staff);
+//            objectMapper.writeValue(new File("temp/staff.json"),staff);
+            Staff staff = objectMapper.readValue(new File("temp/staff.json"), Staff.class);
+            System.out.println(staff.getSalary());
         } catch (IOException e) {
             e.printStackTrace();
         }
