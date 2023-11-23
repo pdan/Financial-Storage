@@ -1,6 +1,14 @@
 package org.sematec;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -9,49 +17,25 @@ public class Main {
 
     public static void main(String[] args) {
 
-        ResourceBundle resourceBundle = ResourceBundle.getBundle("db");
-        String dbHost = resourceBundle.getString("db.host");
-        String dbPort = resourceBundle.getString("db.port");
-        String dbName = resourceBundle.getString("db.name");
-
-
-        String url = "jdbc:postgresql://" + dbHost + ":" + dbPort + "/" + dbName;
+        ObjectMapper objectMapper = new ObjectMapper();
+        Staff staff = new Staff();
+        staff.setName("modernISC");
+        staff.setAge(38);
+        staff.setPosition(new String[]{"Founder", "CTO", "Writer"});
+        Map<String, BigDecimal> salary = new HashMap() {{
+            put("2010"
+                    , new BigDecimal(10000));
+            put("2012"
+                    , new BigDecimal(12000));
+            put("2018"
+                    , new BigDecimal(14000));
+        }};
+        staff.setSalary(salary);
+        staff.setSkills(Arrays.asList("java", "python", "node", "kotlin"));
 
         try {
-            Class.forName(JDBC_DRIVER);
-
-            try (Connection connection = DriverManager.getConnection(url, "postgres", "postgres")) {
-//                Statement createDbStatement = connection.createStatement();
-//                createDbStatement.executeUpdate(createDatabaseQuery);
-
-                if (connection != null) {
-                    Statement statement = connection.createStatement();
-                    PreparedStatement s = connection.prepareStatement("SELECT * FROM  ?");
-                    s.setString(1, "example");
-                    s.executeQuery();
-                    statement.executeUpdate("CREATE TABLE IF NOT EXISTS example (id SERIAL PRIMARY KEY, name VARCHAR(255))");
-
-                    // Insert data
-                    int id = (int) (Math.random() * 1000);
-                    insertData(connection, id, "Cup Do " + id);
-
-                    // Delete data
-                    deleteData(connection, "Cup Do");
-
-                    // Query data
-                    ResultSet result = statement.executeQuery("SELECT * FROM example");
-
-                    while (result.next()) {
-                        String name = result.getString("name");
-                        System.out.println("Result:");
-                        System.out.println(name);
-                    }
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-        } catch (ClassNotFoundException e) {
+            objectMapper.writeValue(new File("staff.json"),staff);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
