@@ -2,47 +2,34 @@ package org.sematec;
 
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
-public class Main {
-    private static final Logger logger = LogManager.getLogger(Main.class);
-
-    public static void main(String[] args) {
-        Runnable task1 = new Runnable(){
-            @Override
-            public void run(){
-                System.out.println(Thread.currentThread().getName() + " is running");
-            }
-        };
-
-        Runnable task2  = new Runnable(){
-            @Override
-            public void run(){
-                System.out.println(Thread.currentThread().getName() + " is running");
-            }
-        };
-
-        Runnable task3  = new Runnable(){
-            @Override
-            public void run(){
-                System.out.println(Thread.currentThread().getName() + " is running");
-            }
-        };
-
-        Thread thread2 = new Thread(new Runnable() {
-            @Override
-            public void run(){
-                System.out.println(Thread.currentThread().getName() + " is running");
-            }
-        });
+import org.quartz.*;
+import org.quartz.impl.StdSchedulerFactory;
 
 
+public class Main implements Job {
+    public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 
-        Thread thread1 = new Thread(task1);
-        thread1.start();
-        thread1.setPriority(2);
-        thread2.start();
+        System.out.println("Job executed at " + System.currentTimeMillis());
+    }
+    public static void main(String[] args) throws SchedulerException {
 
-        new Thread(task3).start();
+        SchedulerFactory schedulerFactory = new StdSchedulerFactory();
+        Scheduler scheduler = schedulerFactory.getScheduler();
+
+
+        JobDetail jobDetail = JobBuilder.newJob(Main.class)
+                .withIdentity("cronJob", "group1")
+                .build();
+
+
+        CronTrigger cronTrigger = TriggerBuilder.newTrigger()
+                .withIdentity("cronTrigger", "group1")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0/2 25 15 ? * *"))
+                .build();
+
+
+        scheduler.scheduleJob(jobDetail, cronTrigger);
+        scheduler.start();
 
     }
 }
