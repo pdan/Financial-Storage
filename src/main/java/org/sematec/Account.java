@@ -1,32 +1,29 @@
 package org.sematec;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Account {
-    private final Account.accountType accountType;
-    private String accountNumber;
-
-    public enum accountType {
-        SAVING,
+    public enum AccountType {
+        CREDIT,
         CHECKING,
-        CREDIT
-    };
-    private int customerId;
-    private double limit;
-    private Date openDate;
-    private double balance;
+        SAVING
+    }
+    public long accountNumber;
+    public String accountOpenDate;
+    public double accountLimit;
+    public long accountCustomerId;
+    public AccountType accountType;
+    public double accountBalance;
 
-    public Account(String accountNumber, int customerId, double limit, Date openDate, double balance, accountType accountType) {
+    public Account(long accountNumber, String accountOpenDate, double accountLimit, long accountCustomerId, AccountType accountType,  double accountBalance) {
         this.accountNumber = accountNumber;
-        this.customerId = customerId;
-        this.limit = limit;
-        this.openDate = openDate;
-        this.balance = balance;
+        this.accountOpenDate = accountOpenDate;
+        this.accountLimit = accountLimit;
+        this.accountCustomerId = accountCustomerId;
         this.accountType = accountType;
+        this.accountBalance = accountBalance;
     }
-
-    public double getBalance() {
-        return balance;
-    }
-
 }
+
+
