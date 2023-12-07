@@ -15,7 +15,8 @@ public class Main implements Job {
 
         SchedulerFactory schedulerFactory = new StdSchedulerFactory();
         Scheduler scheduler = schedulerFactory.getScheduler();
-
+        Scheduler scheduler1 = schedulerFactory.getScheduler();
+scheduler1.scheduleJob()
 
         JobDetail jobDetail = JobBuilder.newJob(Main.class)
                 .withIdentity("cronJob", "group1")
