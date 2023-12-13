@@ -20,7 +20,7 @@ import java.nio.file.Files;
 //import java.nio.file.Paths;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // customer-data -f account.csv -f customer.csv -o output/
         // customer-data export ./output_directory
@@ -28,7 +28,7 @@ public class Main {
         // args[1] = customers.csv
 //        System.out.println(Paths.get("./mock_data"));
 
-        if (args.length < 3 ) {
+        if (args.length < 2 ) {
             System.out.println("Usage: customer-data import -c <Customer CSV file> -a <Account CSV file> ...");
             System.out.println("       customer-data export <Out directory>");
             System.exit(1);
@@ -46,6 +46,8 @@ public class Main {
                 }
 
             case "export":
+                // Read customer from database
+                Export.ExportToJSON();
 //                Customer.export();
 //                Account.export();
                 break;

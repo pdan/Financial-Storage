@@ -4,18 +4,14 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 
-import javax.sql.DataSource;
+
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.sql.*;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 public class Import {
 
@@ -52,10 +48,14 @@ public class Import {
                         preparedStatement.setDate(7, Date.valueOf(newCustomer.customerBirthDate));
 
 
-                        preparedStatement.executeUpdate();
-                        connection.commit();
+                        preparedStatement.addBatch();
+
 
                     }
+
+                    preparedStatement.executeBatch();
+                    connection.commit();
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -72,15 +72,12 @@ public class Import {
         File CSVFile = new File(source);
         try (Reader reader = new FileReader(CSVFile);
              CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withHeader())) {
-//            String insertQuery = "INSERT INTO customers (RECORD_NUMBER, ACCOUNT_OPEN_DATE, ACCOUNT_LIMIT, ACCOUNT_CUSTOMER_ID, ACCOUNT_TYPE, ACCOUNT_NUMBER) VALUES (?,?,?,?,?,?)";
             String insertQuery = "INSERT INTO accounts (ACCOUNT_NUMBER, ACCOUNT_OPEN_DATE, ACCOUNT_LIMIT, ACCOUNT_CUSTOMER_ID, ACCOUNT_TYPE, ACCOUNT_BALANCE) VALUES (?,?,?,?,?,?)";
             try (Connection connection = Database.getConnection()) {
                 connection.setAutoCommit(false);
                 try (PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
 
                     for (CSVRecord csvRecord : csvParser.getRecords()) {
-//                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm:ss");
-//                        String accountOpenDate =  csvRecord.get("ACCOUNT_OPEN_DATE");
 
                         Account newAccount = new Account(
                                 Long.parseLong(csvRecord.get("ACCOUNT_NUMBER")),
@@ -115,15 +112,4 @@ public class Import {
         }
 
     }
-
-//    public static Predicate<String> SetImportFiles() {
-//        return x ->
-//    }
-
-
-//    public static Map<String, Account> readAccounts() {
-//    }
-//
-//    public static Map<String, Customer> readCustomers() {
-//    }
 }

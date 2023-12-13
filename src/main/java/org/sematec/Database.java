@@ -39,6 +39,7 @@ public class Database {
 
         try {
             Connection conn = dataSource.getConnection();
+
             Statement statement = conn.createStatement();
             String createAccountQuery = "CREATE TABLE IF NOT EXISTS accounts (" +
                     "ACCOUNT_NUMBER BIGINT PRIMARY KEY," +
@@ -58,6 +59,7 @@ public class Database {
 
             statement.execute(createAccountQuery);
             statement.execute(createCustomerQuery);
+
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
