@@ -48,6 +48,7 @@ public class Main {
             case "export":
                 // Read customer from database
                 Export.ExportToJSON();
+                Export.ExportToXML();
 //                Customer.export();
 //                Account.export();
                 break;
