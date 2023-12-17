@@ -3,6 +3,7 @@ package org.sematec;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
+import org.apache.log4j.Logger;
 
 
 import java.io.File;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class Import {
+    final static Logger logger = Logger.getLogger(Import.class);
 
     public void fromCustomers(String source) {
         File CSVFile = new File(source);
@@ -49,7 +51,7 @@ public class Import {
 
 
                         preparedStatement.addBatch();
-
+                        logger.info("Customer \"" + newCustomer.customerName + " " + newCustomer.customerSurname  + "\" has been added");
 
                     }
 
@@ -98,6 +100,8 @@ public class Import {
 
                         preparedStatement.executeUpdate();
                         connection.commit();
+
+                        logger.info("Account number \"" + newAccount.accountNumber + " with balance of " + newAccount.accountBalance  + "\" has been added");
 
                     }
                 } catch (Exception e) {

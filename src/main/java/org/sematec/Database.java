@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ResourceBundle;
@@ -23,6 +24,12 @@ public class Database {
 
 
         String url = "jdbc:mysql://" + dbUsername + ":" + dbPassword + "@" + dbHost + ":" + dbPort + "/" + dbName;
+
+        try (Connection connection = DriverManager.getConnection("jdbc:mysql://" + dbUsername + ":" + dbPassword + "@" + dbHost + ":" + dbPort)) {
+            connection.createStatement().execute("CREATE DATABASE IF NOT EXISTS customers_data");
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         if (dataSource == null) {
             HikariConfig config = new HikariConfig();
@@ -56,7 +63,7 @@ public class Database {
                     "CUSTOMER_ZIP_CODE VARCHAR(20)," +
                     "CUSTOMER_NATIONAL_ID VARCHAR(20)," +
                     "CUSTOMER_BIRTH_DATE DATE)";
-
+            statement.execute("CREATE DATABASE IF NOT EXISTS customers_data");
             statement.execute(createAccountQuery);
             statement.execute(createCustomerQuery);
 
